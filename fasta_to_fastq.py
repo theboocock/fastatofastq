@@ -18,6 +18,7 @@
 import argparse
 import sys
 import random
+import re
 
 bases = ['A','T','C','G']
 
@@ -42,11 +43,18 @@ def get_sequence_and_quality(sequence,quality_char):
     return (''.join(sequence),''.join(quality_scores))
 
 def fasta_to_fastq(fasta_file, quality_score):
-    quality_char=chr(quality_score)
+    quality_char=chr(quality_score+33)
     with open(fasta_file,'r') as fasta:
+        temp_line = fasta.readline()
         while True:
-            header=fasta.readline()
-            sequence = fasta.readline()
+            header=temp_line
+            sequence = ''
+            temp_line = fasta.readline().strip()
+            while(">" not in temp_line):
+                sequence += temp_line
+                temp_line = fasta.readline().strip()
+                if not temp_line:
+                    break
             if not header or not sequence:
                 break
             sample = header.strip().split('>')[1]
